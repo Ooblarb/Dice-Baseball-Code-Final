@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Baseball Field Scoreboard App</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #2e7d32;
+      display: flex;
+      justify-content: center;
+    }
+
+    .field {
+      position: relative;
+      width: 900px;
+      height: 900px;
+      background: radial-gradient(circle at center, #4caf50 0%, #2e7d32 70%);
+      border: 6px solid #1b5e20;
+    }
+
+    /* Bases */
+    .base {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      background: white;
+      transform: rotate(45deg);
+      cursor: pointer;
+      border: 2px solid #000;
+    }
+
+    #first { left: 430px; top: 460px; }
+    #second { left: 350px; top: 340px; }
+    #third { left: 270px; top: 460px; }
+
+    /* Home plate (visual only) */
+    .home {
+      position: absolute;
+      left: 350px;
+      bottom: 250px;
+      width: 40px;
+      height: 40px;
+      background: #eee;
+      clip-path: polygon(50% 0%, 100% 40%, 100% 100%, 0% 100%, 0% 40%);
+      border: 2px solid #000;
+    }
+
+    /* Scoreboard */
+    .scoreboard {
+      position: absolute;
+      top: 150px; /* gap to 2nd base reduced by 50% */
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      background: #111;
+      color: white;
+      padding: 10px;
+      border-radius: 6px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    th, td {
+      border: 1px solid #555;
+      padding: 2px;
+      text-align: center;
+    }
+
+    input[type=number] {
+      width: 40px;
+      background: #000;
+      color: #0f0;
+      border: none;
+      text-align: center;
+    }
+
+    .total {
+      font-weight: bold;
+      color: #ffeb3b;
+    }
+
+    /* Balls & Strikes */
+    .count {
+      position: absolute;
+      left: 510px; /* to the right of 1st base */
+      bottom: 250px; /* aligned with bottom of home plate */
+      background: rgba(255,255,255,0.9);
+      padding: 10px 16px;
+      border-radius: 8px;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .label {
+      width: 60px;
+      font-weight: bold;
+    }
+
+    .ball {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: white;
+      border: 2px solid #000;
+      margin-left: 6px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div class="field">
+
+  <!-- Bases -->
+  <div id="first" class="base"></div>
+  <div id="second" class="base"></div>
+  <div id="third" class="base"></div>
+  <div class="home"></div>
+
+  <!-- Scoreboard -->
+  <div class="scoreboard">
+    <table>
+      <tr>
+        <th>Team</th>
+        <th colspan="13">Innings</th>
+        <th>Total</th>
+      </tr>
+      <tr>
+        <th></th>
+        <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th>
+        <th>7</th><th>8</th><th>9</th><th>10</th><th>11</th><th>12</th><th>13</th>
+        <th></th>
+      </tr>
+      <tr id="visitor-row">
+        <th>Visitor</th>
+        <td><input type="number"></td><td><input type="number"></td><td><input type="number"></td>
+        <td><input type="number"></td><td><input type="number"></td><td><input type="number"></td>
+        <td><input type="number"></td><td><input type="number"></td><td><input type="number"></td>
+        <td><input type="number"></td><td><input type="number"></td><td><input type="number"></td>
+        <td><input type="number"></td>
+        <td class="total" id="visitor-total">0</td>
+      </tr>
+      <tr id="home-row">
+        <th>Home</th>
+        <td><input type="number"></td><td><input type="number"></td><td><input type="number"></td>
+        <td><input type="number"></td><td><input type="number"></td><td><input type="number"></td>
+        <td><input type="number"></td><td><input type="number"></td><td><input type="number"></td>
+        <td><input type="number"></td><td><input type="number"></td><td><input type="number"></td>
+        <td><input type="number"></td>
+        <td class="total" id="home-total">0</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- Balls & Strikes -->
+  <div class="count">
+    <div class="row">
+      <div class="label">Strike</div>
+      <div class="ball"></div>
+      <div class="ball"></div>
+    </div>
+    <div class="row">
+      <div class="label">Ball</div>
+      <div class="ball"></div>
+      <div class="ball"></div>
+      <div class="ball"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Toggle black/white for bases and balls
+  function toggle(el) {
+    el.style.background = el.style.background === 'black' ? 'white' : 'black';
+  }
+
+  document.querySelectorAll('.base, .ball').forEach(el => {
+    el.addEventListener('click', () => toggle(el));
+  });
+
+  // Score calculation
+  function updateTotal(rowId, totalId) {
+    const row = document.getElementById(rowId);
+    const inputs = row.querySelectorAll('input');
+    let sum = 0;
+    inputs.forEach(i => sum += Number(i.value || 0));
+    document.getElementById(totalId).innerText = sum;
+  }
+
+  document.querySelectorAll('#visitor-row input').forEach(i => {
+    i.addEventListener('input', () => updateTotal('visitor-row', 'visitor-total'));
+  });
+
+  document.querySelectorAll('#home-row input').forEach(i => {
+    i.addEventListener('input', () => updateTotal('home-row', 'home-total'));
+  });
+</script>
+
+</body>
+</html>
