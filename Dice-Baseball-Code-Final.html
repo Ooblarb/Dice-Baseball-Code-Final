@@ -164,6 +164,7 @@
 
   <!-- Balls & Strikes -->
   <div class="count">
+    <button id="reset-count" style="margin-bottom:8px; width:100%;">Reset Count</button>
     <div class="row">
       <div class="label">Strike</div>
       <div class="ball"></div>
@@ -187,6 +188,13 @@
 
   document.querySelectorAll('.base, .ball').forEach(el => {
     el.addEventListener('click', () => toggle(el));
+  });
+
+  // Reset balls & strikes
+  document.getElementById('reset-count').addEventListener('click', () => {
+    document.querySelectorAll('.ball').forEach(ball => {
+      ball.style.background = 'white';
+    });
   });
 
   // Score calculation
