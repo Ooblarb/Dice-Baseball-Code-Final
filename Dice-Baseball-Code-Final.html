@@ -50,7 +50,7 @@
     /* Scoreboard */
     .scoreboard {
       position: absolute;
-      top: 150px; /* gap to 2nd base reduced by 50% */
+      top: 150px;
       left: 50%;
       transform: translateX(-50%);
       width: 700px;
@@ -85,14 +85,15 @@
       color: #ffeb3b;
     }
 
-    /* Balls & Strikes */
+    /* Outs / Balls / Strikes */
     .count {
       position: absolute;
-      left: 510px; /* to the right of 1st base */
-      bottom: 250px; /* aligned with bottom of home plate */
+      left: 510px;
+      bottom: 250px;
       background: rgba(255,255,255,0.9);
       padding: 10px 16px;
       border-radius: 8px;
+      min-width: 180px;
     }
 
     .row {
@@ -106,13 +107,18 @@
       font-weight: bold;
     }
 
-    .ball {
+    .ball,
+    .out {
       width: 20px;
       height: 20px;
       border-radius: 50%;
       background: white;
       border: 2px solid #000;
       margin-left: 6px;
+      cursor: pointer;
+    }
+
+    button {
       cursor: pointer;
     }
   </style>
@@ -141,52 +147,91 @@
         <th>7</th><th>8</th><th>9</th><th>10</th><th>11</th><th>12</th><th>13</th>
         <th></th>
       </tr>
+
       <tr id="visitor-row">
         <th>Visitor</th>
-        <td><input type="number"></td><td><input type="number"></td><td><input type="number"></td>
-        <td><input type="number"></td><td><input type="number"></td><td><input type="number"></td>
-        <td><input type="number"></td><td><input type="number"></td><td><input type="number"></td>
-        <td><input type="number"></td><td><input type="number"></td><td><input type="number"></td>
+        <td><input type="number"></td>
+        <td><input type="number"></td>
+        <td><input type="number"></td>
+        <td><input type="number"></td>
+        <td><input type="number"></td>
+        <td><input type="number"></td>
+        <td><input type="number"></td>
+        <td><input type="number"></td>
+        <td><input type="number"></td>
+        <td><input type="number"></td>
+        <td><input type="number"></td>
+        <td><input type="number"></td>
         <td><input type="number"></td>
         <td class="total" id="visitor-total">0</td>
       </tr>
+
       <tr id="home-row">
         <th>Home</th>
-        <td><input type="number"></td><td><input type="number"></td><td><input type="number"></td>
-        <td><input type="number"></td><td><input type="number"></td><td><input type="number"></td>
-        <td><input type="number"></td><td><input type="number"></td><td><input type="number"></td>
-        <td><input type="number"></td><td><input type="number"></td><td><input type="number"></td>
+        <td><input type="number"></td>
+        <td><input type="number"></td>
+        <td><input type="number"></td>
+        <td><input type="number"></td>
+        <td><input type="number"></td>
+        <td><input type="number"></td>
+        <td><input type="number"></td>
+        <td><input type="number"></td>
+        <td><input type="number"></td>
+        <td><input type="number"></td>
+        <td><input type="number"></td>
+        <td><input type="number"></td>
         <td><input type="number"></td>
         <td class="total" id="home-total">0</td>
       </tr>
     </table>
   </div>
 
-  <!-- Balls & Strikes -->
+  <!-- Outs / Balls / Strikes -->
   <div class="count">
-    <button id="reset-count" style="margin-bottom:8px; width:100%;">Reset Count</button>
+
+    <button id="reset-outs" style="margin-bottom:4px; width:100%;">
+      Reset Outs
+    </button>
+
+    <div class="row">
+      <div class="label">Out</div>
+      <div class="out"></div>
+      <div class="out"></div>
+      <div class="out"></div>
+    </div>
+
+    <hr style="margin:8px 0;">
+
+    <button id="reset-count" style="margin-bottom:8px; width:100%;">
+      Reset Count
+    </button>
+
     <div class="row">
       <div class="label">Strike</div>
       <div class="ball"></div>
       <div class="ball"></div>
     </div>
+
     <div class="row">
       <div class="label">Ball</div>
       <div class="ball"></div>
       <div class="ball"></div>
       <div class="ball"></div>
     </div>
+
   </div>
 
 </div>
 
 <script>
-  // Toggle black/white for bases and balls
+  // Toggle black/white
   function toggle(el) {
-    el.style.background = el.style.background === 'black' ? 'white' : 'black';
+    el.style.background =
+      el.style.background === 'black' ? 'white' : 'black';
   }
 
-  document.querySelectorAll('.base, .ball').forEach(el => {
+  // Bases, balls, and outs
+  document.querySelectorAll('.base, .ball, .out').forEach(el => {
     el.addEventListener('click', () => toggle(el));
   });
 
@@ -197,21 +242,36 @@
     });
   });
 
+  // Reset outs
+  document.getElementById('reset-outs').addEventListener('click', () => {
+    document.querySelectorAll('.out').forEach(out => {
+      out.style.background = 'white';
+    });
+  });
+
   // Score calculation
   function updateTotal(rowId, totalId) {
     const row = document.getElementById(rowId);
     const inputs = row.querySelectorAll('input');
+
     let sum = 0;
-    inputs.forEach(i => sum += Number(i.value || 0));
+    inputs.forEach(i => {
+      sum += Number(i.value || 0);
+    });
+
     document.getElementById(totalId).innerText = sum;
   }
 
   document.querySelectorAll('#visitor-row input').forEach(i => {
-    i.addEventListener('input', () => updateTotal('visitor-row', 'visitor-total'));
+    i.addEventListener('input', () => {
+      updateTotal('visitor-row', 'visitor-total');
+    });
   });
 
   document.querySelectorAll('#home-row input').forEach(i => {
-    i.addEventListener('input', () => updateTotal('home-row', 'home-total'));
+    i.addEventListener('input', () => {
+      updateTotal('home-row', 'home-total');
+    });
   });
 </script>
 
